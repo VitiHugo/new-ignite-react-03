@@ -1,34 +1,51 @@
-import { ArrowCircleDown, ArrowCircleUp, X } from "phosphor-react";
-import { CloseButton, Content, Overlay, TransactionType, TransactionTypeButton } from "./styles";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as Dialog from "@radix-ui/react-dialog";
-import * as RadioGroup from "@radix-ui/react-radio-group";
-import * as z from 'zod';
+import { ArrowCircleDown, ArrowCircleUp, X } from 'phosphor-react'
+import {
+  CloseButton,
+  Content,
+  Overlay,
+  TransactionType,
+  TransactionTypeButton,
+} from './styles'
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as Dialog from '@radix-ui/react-dialog'
+import * as z from 'zod'
+import { useContext } from 'react'
+import { TransactionsContext } from '../../context/TransactionsContext'
 
 const newTransactionFromSchema = z.object({
   description: z.string(),
   price: z.number(),
   category: z.string(),
-  type: z.enum(['income', 'outcome'])
+  type: z.enum(['income', 'outcome']),
 })
 
 type newTransactionFormInputs = z.infer<typeof newTransactionFromSchema>
 
 export function NewTransactionModal() {
-  const { 
+  const { createTransaction } = useContext(TransactionsContext)
+
+  const {
     control,
     register,
     handleSubmit,
-    formState: { isSubmitting }
+    formState: { isSubmitting },
+    reset,
   } = useForm<newTransactionFormInputs>({
     resolver: zodResolver(newTransactionFromSchema),
   })
 
   async function handleCreateNewTransaction(data: newTransactionFormInputs) {
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    const { description, price, category, type } = data
 
-    console.log('toba', data)
+    await createTransaction({
+      description,
+      price,
+      category,
+      type,
+    })
+
+    reset()
   }
 
   return (
@@ -37,44 +54,47 @@ export function NewTransactionModal() {
 
       <Content>
         <Dialog.Title>Nova transacao</Dialog.Title>
-        
+
         <CloseButton>
-           <X size={24}/>
+          <X size={24} />
         </CloseButton>
 
         <form onSubmit={handleSubmit(handleCreateNewTransaction)}>
-          <input 
+          <input
             type="text"
             placeholder="Description"
             required
-            {...register('description')} 
+            {...register('description')}
           />
-          <input 
+          <input
             type="number"
             placeholder="Price"
-            required 
+            required
             {...register('price', { valueAsNumber: true })}
           />
-          <input 
+          <input
             type="text"
             placeholder="Category"
-            required 
+            required
             {...register('category')}
           />
 
-          <Controller 
+          <Controller
             control={control}
             name="type"
             render={({ field }) => {
               return (
-                <TransactionType onValueChange={field.onChange} value={field.value}>
+                <TransactionType
+                  onValueChange={field.onChange}
+                  value={field.value}
+                >
                   <TransactionTypeButton variant="income" value="income">
                     <ArrowCircleUp size={24} />
                     Income
                   </TransactionTypeButton>
 
                   <TransactionTypeButton variant="outcome" value="outcome">
-                    <ArrowCircleDown size={24}/>
+                    <ArrowCircleDown size={24} />
                     Outcome
                   </TransactionTypeButton>
                 </TransactionType>
@@ -82,8 +102,10 @@ export function NewTransactionModal() {
             }}
           />
 
-          <button type="submit" disabled={isSubmitting}>Save</button>
-        </form>        
+          <button type="submit" disabled={isSubmitting}>
+            Save
+          </button>
+        </form>
       </Content>
     </Dialog.Portal>
   )

@@ -47,6 +47,14 @@
       "type": "outcome",
       "createdAt": "2022-07-30T13:38:57.560Z",
       "id": 6
+    },
+    {
+      "description": "Bolacha",
+      "price": 3,
+      "category": "Alimentacao",
+      "type": "outcome",
+      "createdAt": "2023-03-01T23:52:47.458Z",
+      "id": 7
     }
   ]
 }
